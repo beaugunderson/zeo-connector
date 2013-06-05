@@ -3,24 +3,26 @@ var serializer = require('serializer');
 var url = require('url');
 var util = require('util');
 
+var BASE_URL = 'https://mysleep.myzeo.com:8443/zeows/oauth';
+
 module.exports = {
   handler: function (callback, apiKeys, done, req, res) {
-    var OA = new OAlib('https://mysleep.myzeo.com:8443/zeows/oauth/request_token',
-      'https://mysleep.myzeo.com:8443/zeows/oauth/access_token',
+    var OA = new OAlib(BASE_URL + '/request_token',
+      BASE_URL + '/access_token',
       apiKeys.appKey,
       apiKeys.appSecret,
       '1.0',
       callback,
       'HMAC-SHA1',
       null,
-      {'Accept': '*/*', 'Connection': 'close'});
+      { 'Accept': '*/*', 'Connection': 'close' });
 
     var qs = url.parse(req.url, true).query;
 
     var appSecretSerializer = serializer
       .createSecureSerializer(apiKeys.appSecret, apiKeys.appSecret);
 
-    // second phase, post-user-authorization
+    // Second phase, post-user-authorization
     var sess;
 
     if (req.cookies && req.cookies.zeo_client) {
@@ -41,9 +43,9 @@ module.exports = {
         }
 
         done(null, {
-          consumerKey : apiKeys.appKey,
-          consumerSecret : apiKeys.appSecret,
-          token : oauth_token,
+          consumerKey: apiKeys.appKey,
+          consumerSecret: apiKeys.appSecret,
+          token: oauth_token,
           tokenSecret: oauth_token_secret,
           callerKey: apiKeys.callerKey
         });
@@ -52,19 +54,19 @@ module.exports = {
       return;
     }
 
-    // first phase, initiate user authorization
+    // First phase, initiate user authorization
     OA.getOAuthRequestToken({ oauth_callback: callback },
       function (error, oauth_token, oauth_token_secret) {
       if (error) {
-        return res.end("failed to get token: " + util.inspect(error));
+        return res.end("Failed to get token: " + util.inspect(error));
       }
 
-      // stash the secret
+      // Stash the secret
       res.cookie('zeo_client',
         appSecretSerializer.stringify({ token_secret: oauth_token_secret }),
         { path: '/', httpOnly: false });
 
-      res.redirect('https://mysleep.myzeo.com:8443/zeows/oauth/confirm_access?oauth_token=' + oauth_token);
+      res.redirect(BASE_URL + '/confirm_access?oauth_token=' + oauth_token);
     });
   }
 };
