@@ -1,12 +1,12 @@
-var lib = require('./lib');
+var lib = require('../lib.js');
 
-exports.sync = function(pi, cb) {
+exports.sync = function (pi, cb) {
   var auth = pi.auth;
 
   auth.profile = null;
 
   lib.apiCall({ auth: auth, query: '/getAccountId' },
-    function(err, body) {
+    function (err, body) {
     if (err) {
       return cb(new Error('Status code ' + err.statusCode));
     }

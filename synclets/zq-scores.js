@@ -1,8 +1,8 @@
-var lib = require('./lib');
+var lib = require('../lib.js');
 
-exports.sync = function(pi, cb) {
+exports.sync = function (pi, cb) {
   lib.apiCall({ auth: pi.auth, query: '/getOverallAverageZQScore' },
-    function(err, body, resp) {
+    function (err, body) {
     if (err) {
       return cb(new Error('Status code ' + err.statusCode + ', body ' + body));
     }

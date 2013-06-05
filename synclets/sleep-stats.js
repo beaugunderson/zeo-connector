@@ -1,4 +1,4 @@
-var lib = require('./lib');
+var lib = require('../lib.js');
 
 var MAX_QUERIES = 10;
 
@@ -21,7 +21,7 @@ function syncSleepStats(statsArray, pi, cb) {
 function nextStat(statsArray, date, pi, cb) {
   lib.apiCall({ auth: pi.auth, query: '/getNextSleepStats',
     params: { date: date.year + '-' + date.month + '-' + date.day } },
-    function(err, body) {
+    function (err, body) {
     if (err) {
       return cb(new Error('Status code ' + err.statusCode + ', body ' + body));
     }
@@ -42,11 +42,11 @@ function nextStat(statsArray, date, pi, cb) {
   });
 }
 
-exports.sync = function(pi, cb) {
+exports.sync = function (pi, cb) {
   pi.config = pi.config || {};
 
   lib.apiCall({ auth: pi.auth, query: '/getEarliestSleepStats' },
-    function(err, body, resp) {
+    function (err, body) {
     if (err) {
       return cb(new Error('Status code ' + err.statusCode + ', body ' + body));
     }
