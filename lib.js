@@ -46,15 +46,17 @@ exports.apiCall = function (arg, cb) {
   });
 };
 
-exports.getIDFromBedTime = function (data) {
-  var time = data.bedTime;
-  return [
-    time.year, time.month, time.day,
-    time.hour, time.minute, time.second
-  ].join('');
-};
-
-exports.getTimeFromStartDate = function (data) {
-  var date = data.startDate;
-  return Date.parse([date.month, date.day, date.year].join('-'));
-};
+//exports.getIDFromBedTime = function (data) {
+//  var time = data.bedTime;
+//
+//  return [
+//    time.year, time.month, time.day,
+//    time.hour, time.minute, time.second
+//  ].join('');
+//};
+//
+//exports.getTimeFromStartDate = function (data) {
+//  var date = data.startDate;
+//
+//  return Date.parse([date.month, date.day, date.year].join('-'));
+//};
