@@ -1,10 +1,10 @@
-module.exports = {
-  handler : function (callback, apiKeys, done, req, res) {
-    var request = require('request');
-    var url = require('url');
-    var util = require('util');
+var OAlib = require('oauth').OAuth;
+var serializer = require('serializer');
+var url = require('url');
+var util = require('util');
 
-    var OAlib = require('oauth').OAuth;
+module.exports = {
+  handler: function (callback, apiKeys, done, req, res) {
     var OA = new OAlib('https://mysleep.myzeo.com:8443/zeows/oauth/request_token',
       'https://mysleep.myzeo.com:8443/zeows/oauth/access_token',
       apiKeys.appKey,
@@ -16,22 +16,26 @@ module.exports = {
       {'Accept': '*/*', 'Connection': 'close'});
 
     var qs = url.parse(req.url, true).query;
-    var serializer = require('serializer').createSecureSerializer(apiKeys.appSecret, apiKeys.appSecret);
+
+    var appSecretSerializer = serializer
+      .createSecureSerializer(apiKeys.appSecret, apiKeys.appSecret);
 
     // second phase, post-user-authorization
     var sess;
 
     if (req.cookies && req.cookies.zeo_client) {
       try {
-        sess = serializer.parse(req.cookies.zeo_client);
-      } catch(E) {
+        sess = appSecretSerializer.parse(req.cookies.zeo_client);
+      } catch (E) {
         // Pass
       }
     }
 
     if (qs && qs.oauth_token && sess && sess.token_secret) {
-      OA.getOAuthAccessToken(qs.oauth_token, sess.token_secret, qs.oauth_verifier,
-        function(error, oauth_token, oauth_token_secret, additionalParameters) {
+      OA.getOAuthAccessToken(qs.oauth_token,
+        sess.token_secret,
+        qs.oauth_verifier,
+        function (error, oauth_token, oauth_token_secret) {
         if (error || !oauth_token) {
           return done(new Error("oauth failed to get access token"));
         }
@@ -50,13 +54,14 @@ module.exports = {
 
     // first phase, initiate user authorization
     OA.getOAuthRequestToken({ oauth_callback: callback },
-      function(error, oauth_token, oauth_token_secret, oauth_authorize_url, additionalParameters) {
+      function (error, oauth_token, oauth_token_secret) {
       if (error) {
         return res.end("failed to get token: " + util.inspect(error));
       }
 
       // stash the secret
-      res.cookie('zeo_client', serializer.stringify({ token_secret:oauth_token_secret }),
+      res.cookie('zeo_client',
+        appSecretSerializer.stringify({ token_secret: oauth_token_secret }),
         { path: '/', httpOnly: false });
 
       res.redirect('https://mysleep.myzeo.com:8443/zeows/oauth/confirm_access?oauth_token=' + oauth_token);
