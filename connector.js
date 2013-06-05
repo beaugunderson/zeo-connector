@@ -1,7 +1,6 @@
 var async = require('async');
 var EventEmitter = require('events').EventEmitter;
 var util = require('util');
-var zipstream = require('zipstream');
 
 var ENDPOINTS = [
   'self',
@@ -17,9 +16,10 @@ var Connector = function (credentials) {
 
   var self = this;
 
+  // TODO: Roll this into a base Connector class?
   this.archive = function () {
     async.each(ENDPOINTS, function (endpoint, cbEachEndpoint) {
-      var endpointModule = require('./' + endpoint);
+      var endpointModule = require('./synclets/' + endpoint);
 
       endpointModule.sync({ auth: self.credentials }, function (err, data) {
         self.emit('data', err, endpoint, data);
