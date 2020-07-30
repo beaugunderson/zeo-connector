@@ -19,7 +19,7 @@
     "async": "~0.2.7",
     "zipstream": "~0.2.1",
     "oauth": "~0.9.10",
-    "request": "~2.20.0",
+    "request": "~2.88.2",
     "serializer": "0.0.3"
   },
   "devDependencies": {
